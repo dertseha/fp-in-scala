@@ -3,7 +3,7 @@ package at.sevensuns.dertseha.reading.fp.ch03.datastructures
 import org.junit._
 
 @Test
-class MyModuleTest {
+class ListTest {
 
   @Test
   def testTailReturnsTailOfList() = {
