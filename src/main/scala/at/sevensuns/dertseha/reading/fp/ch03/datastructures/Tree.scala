@@ -6,6 +6,8 @@ case class Branch[A]( left: Tree[A], right: Tree[A] ) extends Tree[A]
 
 object Tree {
 
+  // This 'fold' I came up with after reading attempting the second exercise (3.26).
+  // I saw similarity with List.fold() and created it, though I thought I need an init value.
   def fold[A, B]( tree: Tree[A], init: B )( f: ( A, B ) => B )( joiner: ( B, B ) => B ): B = tree match {
     case Leaf( a )             => f( a, init )
     case Branch( left, right ) => joiner( fold( left, init )( f )( joiner ), fold( right, init )( f )( joiner ) )
