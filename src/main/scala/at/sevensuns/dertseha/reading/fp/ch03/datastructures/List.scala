@@ -138,5 +138,40 @@ object List {
     foldRight( as, Nil: List[B] )( ( x, acc ) => foldRight( f( x ), acc )( Cons( _, _ ) ) )
 
   // Exercise 3.21
-  def filterViaFlatMap[A]( as: List[A] )( f: A => Boolean ): List[A] = ???
+  def filterViaFlatMap[A]( as: List[A] )( f: A => Boolean ): List[A] =
+    flatMap( as )( a => if ( f( a ) ) List( a ) else Nil )
+
+  // Exercise 3.22
+  def addListElements( as1: List[Int], as2: List[Int] ): List[Int] =
+    zipWith( as1 )( as2 )( _ + _ )
+
+  // Exercise 3.23
+  def zipWith[A, B, C]( as: List[A] )( bs: List[B] )( f: ( A, B ) => C ): List[C] = {
+    // not tail recursive though...
+
+    def go( remainA: List[A], remainB: List[B] ): List[C] =
+      ( remainA, remainB ) match {
+        case ( Cons( a, arest ), Cons( b, brest ) ) => Cons( f( a, b ), go( arest, brest ) )
+        case ( _, _ )                               => Nil
+      }
+
+    go( as, bs )
+  }
+
+  def hasSubsequence[A]( sup: List[A], sub: List[A] ): Boolean = {
+    @annotation.tailrec
+    def go( supRemain: List[A], subRemain: List[A], supState: List[A] ): Boolean =
+      ( supRemain, subRemain ) match {
+        case ( _, Nil )                                 => true
+        case ( Cons( x, xs ), Cons( y, ys ) ) if x == y => go( xs, ys, supState )
+        case ( Cons( _, xs ), y ) if y != sub           => go( xs, sub, supState )
+        case ( Cons( _, xs ), _ )                       => hasSubsequence( supState, sub )
+        case ( Nil, _ )                                 => false
+      }
+
+    sup match {
+      case Nil           => sub == Nil
+      case Cons( _, xs ) => go( sup, sub, xs )
+    }
+  }
 }

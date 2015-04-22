@@ -167,4 +167,39 @@ class MyModuleTest {
 
     Assert.assertEquals( List( 2, 4 ), result )
   }
+
+  @Test
+  def testFilterViaFlatMap() {
+    val input = List( 1, 2, 3, 4 )
+    val result = List.filterViaFlatMap( input )( _ % 2 == 0 )
+
+    Assert.assertEquals( List( 2, 4 ), result )
+  }
+
+  @Test
+  def testAddListElements() {
+    val input1 = List( 1, 2, 3 )
+    val input2 = List( 4, 5, 6 )
+    val result = List.addListElements( input1, input2 )
+
+    Assert.assertEquals( List( 5, 7, 9 ), result )
+  }
+
+  @Test
+  def testHasSubsequence() {
+    val base = List( 1, 2, 3, 4 )
+
+    Assert.assertTrue( List.hasSubsequence( base, List( 1, 2 ) ) )
+    Assert.assertTrue( List.hasSubsequence( base, List( 2, 3 ) ) )
+    Assert.assertTrue( List.hasSubsequence( base, List( 4 ) ) )
+
+    Assert.assertTrue( List.hasSubsequence( List( 2, 3, 4 ), List( 3 ) ) )
+    Assert.assertTrue( List.hasSubsequence( List( 1, 2, 1, 2, 3, 4 ), List( 1, 2, 3 ) ) )
+
+    Assert.assertFalse( List.hasSubsequence( Nil, List( 1, 3 ) ) )
+    Assert.assertFalse( List.hasSubsequence( List( 3, 4 ), List( 1, 3 ) ) )
+    Assert.assertFalse( List.hasSubsequence( List( 2, 3, 4 ), List( 1, 3 ) ) )
+    Assert.assertFalse( List.hasSubsequence( List( 1, 2, 3, 4 ), List( 1, 3 ) ) )
+    Assert.assertFalse( List.hasSubsequence( List( 1, 2, 3 ), List( 1, 2, 3, 4 ) ) )
+  }
 }
