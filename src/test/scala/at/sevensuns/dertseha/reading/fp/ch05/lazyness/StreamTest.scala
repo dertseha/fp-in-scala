@@ -143,4 +143,11 @@ class StreamTest {
     Assert.assertEquals( Stream( Stream( 1, 2, 3 ).toList, Stream( 2, 3 ).toList, Stream( 3 ).toList,
       Stream().toList ).toList, result.map( _.toList ).toList )
   }
+
+  @Test
+  def testScanRight() {
+    val result = Stream( 1, 2, 3 ).scanRight( 0 )( _ + _ )
+
+    Assert.assertEquals( List( 6, 5, 3, 0 ), result.toList )
+  }
 }

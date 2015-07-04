@@ -107,6 +107,15 @@ sealed trait Stream[+A] {
         case Cons( h, t ) => Some( ( ls, t ) )
       }
     } ).append( Stream( Empty ) )
+
+  // Exercise 5.16
+  // can't be done with unfold as this requires the result of the later already precalculated. Do this with foldRight()
+  def scanRight[B]( init: B )( f: ( B, A ) => B ): Stream[B] =
+    foldRight( Stream.cons( init, Empty ) )( ( a, acc ) => {
+      lazy val accVal = acc
+      Stream.cons( f( accVal.headOption.get, a ), accVal )
+    } )
+
 }
 
 case object Empty extends Stream[Nothing]
