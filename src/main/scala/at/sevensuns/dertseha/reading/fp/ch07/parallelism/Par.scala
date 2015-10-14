@@ -47,7 +47,8 @@ object Par {
   // Exercise 7.4
   def asyncF[A, B]( f: A => B ): A => Par[B] = ???
 
-  // Exercise 7.5
-  def sequence[A]( ps: List[Par[A]] ): Par[List[A]] = ???
+  // Exercise 7.5 -- this is hard? does this not work or am I already tuned to the basics?
+  def sequence[A]( ps: List[Par[A]] ): Par[List[A]] =
+    ps.foldRight( unit( Nil: List[A] ) )( ( elem, parAcc ) => map2( elem, parAcc )( ( single, acc ) => single :: acc ) )
 
 }
