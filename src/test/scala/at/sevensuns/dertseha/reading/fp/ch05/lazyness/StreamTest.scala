@@ -150,4 +150,52 @@ class StreamTest {
 
     Assert.assertEquals( List( 6, 5, 3, 0 ), result.toList )
   }
+
+  @Test
+  def testStartsWith() = {
+    val input = Stream( "a", "b", "c", "a", "a", "b", "c" )
+    val result = input.startsWith( Stream( "a", "b" ) )
+
+    Assert.assertEquals( true, result )
+  }
+
+  @Test
+  def testStartsWithRetrunsFalseWhenSearchedStreamIsFoundLater() = {
+    val input = Stream( "a", "b", "c", "a", "a", "b", "c" )
+    val result = input.startsWith( Stream( "b", "c" ) )
+
+    Assert.assertEquals( false, result )
+  }
+
+  @Test
+  def testStartsWithRetrunsFalseWhenSingleElementsNotInSequence() = {
+    val input = Stream( "a", "b", "c", "a", "a", "b", "c" )
+    val result = input.startsWith( Stream( "a", "c" ) )
+
+    Assert.assertEquals( false, result )
+  }
+
+  @Test
+  def testStartsWithRetrunsFalseWhenNotPresentAtAll() = {
+    val input = Stream( "a", "b", "c", "a", "a", "b", "c" )
+    val result = input.startsWith( Stream( "e" ) )
+
+    Assert.assertEquals( false, result )
+  }
+
+  @Test
+  def testStartsWithRetrunsTrueForEmpty() = {
+    val input = Stream( "a", "b", "c", "a", "a", "b", "c" )
+    val result = input.startsWith( Stream() )
+
+    Assert.assertEquals( true, result )
+  }
+
+  @Test
+  def testStartsWithRetrunsFalse3() = {
+    val input = Stream( "a", "b" )
+    val result = input.startsWith( Stream( "a", "b", "c" ) )
+
+    Assert.assertEquals( false, result )
+  }
 }

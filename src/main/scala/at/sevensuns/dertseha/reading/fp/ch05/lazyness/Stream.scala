@@ -96,7 +96,13 @@ sealed trait Stream[+A] {
   def zipAll[B]( s2: Stream[B] ): Stream[( Option[A], Option[B] )] = ???
 
   // Exercise 5.14
-  def startsWith[B >: A]( start: Stream[B] ): Boolean = ???
+  def startsWith[B >: A]( start: Stream[B] ): Boolean =
+    ( start, this ) match {
+      case ( Empty, _ ) => true
+      case ( Cons( startHead, startTail ), Cons( thisHead, thisTail ) ) =>
+        startHead() == thisHead() && thisTail().startsWith( startTail() )
+      case _ => false
+    }
 
   // Exercise 5.15
   def tails: Stream[Stream[A]] =
