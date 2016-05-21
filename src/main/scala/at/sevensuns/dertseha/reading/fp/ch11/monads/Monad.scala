@@ -18,20 +18,41 @@ trait Monad[F[_]] extends Functor[F] {
   // Exercise 11.3
   // Note: I forgot how they work, only copied from other implementation and matched types...
   def sequence[A]( lma: List[F[A]] ): F[List[A]] =
-    lma.foldRight( unit( Nil: List[A] ) )( ( x, acc ) => flatMap( acc )( l => map( x )( xv => xv :: l ) ) )
+    lma.foldRight( unit( Nil: List[A] ) )( ( x, acc ) => map2( x, acc )( _ :: _ ) )
+  //lma.foldRight( unit( Nil: List[A] ) )( ( x, acc ) => flatMap( acc )( l => map( x )( xv => xv :: l ) ) )
 
-  def traverse[A, B]( la: List[A] )( f: A => F[B] ): F[List[B]] =
-    la.foldRight( unit( Nil: List[B] ) )( ( in, acc ) => flatMap( acc )( l => map( f( in ) )( _ :: l ) ) )
+  def traverse[A, B]( la: List[A] )( f: A => F[B] ): F[List[B]] = {
+    sequence( la.map( f ) )
+  }
 
   // Exercise 11.4
-  def replicateM[A]( n: Int, ma: F[A] ): F[List[A]] = ???
+  def replicateOur[A]( n: Int, ma: F[A] ): F[List[A]] = {
+    map( ma )( a => List.fill( n )( a ) )
+  }
+
+  def replicateM[A]( n: Int, ma: F[A] ): F[List[A]] = {
+    sequence( List.fill( n )( ma ) )
+  }
+
+  def compose[A, B, C]( f: A => F[B], g: B => F[C] ): A => F[C] =
+    a => flatMap( f( a ) )( g )
+
+  def filterMOfficial[A]( ms: List[A] )( f: A => F[Boolean] ): F[List[A]] =
+    ms.foldRight( unit( List[A]() ) )( ( x, y ) =>
+      compose( f, ( b: Boolean ) => if ( b ) map2( unit( x ), y )( _ :: _ ) else y )( x ) )
+
+  def filterM[A]( ms: List[A] )( f: A => F[Boolean] ): F[List[A]] = {
+
+    ms.foldRight( unit( Nil: List[A] ) )( ( x, acc ) =>
+      map2( f( x ), acc )( ( b, l ) => if ( b ) x :: l else l ) )
+  }
 
   // Exercise 11.5
   // Too late to think :)
 
   // Exercise 11.6
   // Only followed the types. I have no idea if this works as intended.
-  def filterM[A]( ms: List[A] )( f: A => F[Boolean] ): F[List[A]] = {
+  def filterMMy[A]( ms: List[A] )( f: A => F[Boolean] ): F[List[A]] = {
     val results = sequence( ms.map( a => f( a ) ) )
     val joined = map( results )( l => l.zip( ms ) )
 
@@ -52,6 +73,12 @@ object Monad {
 
     def unit[A]( a: => A ): Option[A] = Some( a )
     def flatMap[A, B]( ma: Option[A] )( f: A => Option[B] ): Option[B] = ma flatMap f
+  }
+
+  val listMonad = new Monad[List] {
+
+    def unit[A]( a: => A ): List[A] = List( a )
+    def flatMap[A, B]( ma: List[A] )( f: A => List[B] ): List[B] = ma flatMap f
   }
 
   // Exercise 11.2
