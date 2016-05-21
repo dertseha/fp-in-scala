@@ -3,6 +3,7 @@ package at.sevensuns.dertseha.reading.fp.ch11.monads
 import at.sevensuns.dertseha.reading.fp.ch08.testing.Gen
 import at.sevensuns.dertseha.reading.fp.ch04.handlingerrors.Option
 import at.sevensuns.dertseha.reading.fp.ch04.handlingerrors.Some
+import at.sevensuns.dertseha.reading.fp.ch06.functionalstate.State
 
 trait Monad[F[_]] extends Functor[F] {
   def unit[A]( a: => A ): F[A]
@@ -34,9 +35,6 @@ trait Monad[F[_]] extends Functor[F] {
     sequence( List.fill( n )( ma ) )
   }
 
-  def compose[A, B, C]( f: A => F[B], g: B => F[C] ): A => F[C] =
-    a => flatMap( f( a ) )( g )
-
   def filterMOfficial[A]( ms: List[A] )( f: A => F[Boolean] ): F[List[A]] =
     ms.foldRight( unit( List[A]() ) )( ( x, y ) =>
       compose( f, ( b: Boolean ) => if ( b ) map2( unit( x ), y )( _ :: _ ) else y )( x ) )
@@ -58,6 +56,30 @@ trait Monad[F[_]] extends Functor[F] {
 
     map( joined )( list => list.foldRight( Nil: List[A] )( ( tuple, acc ) => if ( tuple._1 ) tuple._2 :: acc else acc ) )
   }
+
+  // Exercise 11.7
+  def compose[A, B, C]( f: A => F[B], g: B => F[C] ): A => F[C] =
+    a => flatMap( f( a ) )( g )
+
+  // Exercise 11.8
+  def flatMapWithCompose[A, B]( ma: F[A] )( f: A => F[B] ): F[B] = {
+    //compose( f, map( ma )( unit ) )
+    //val composed = compose( f, ( b: B ) => unit( b ) )
+    //map( ma )( a => map( composed )( b => b ) )
+    ???
+  }
+
+  // Exercise 11.9 - 11.11 -- skipped
+
+  // Exercise 11.12
+  def join[A]( mma: F[F[A]] ): F[A] = ???
+
+  // Exercise 11.13
+  def flatMapWithJoinAndMap[A, B]( ma: F[A] )( f: A => F[B] ): F[B] = ???
+  def flatComposeWithJoinAndMap[A, B]( ma: F[A] )( f: A => F[B] ): F[B] = ???
+
+  // Exercise 11.14 - 11.16 -- skipped
+
 }
 
 object Monad {
@@ -84,4 +106,15 @@ object Monad {
   // Exercise 11.2
   // Thought experiment: Tuple? Nope.
 
+  // Exercise 11.17
+  val idMonad = new Monad[Id] {
+    def unit[A]( a: => A ): Id[A] = Id( a )
+    def flatMap[A, B]( ma: Id[A] )( f: A => Id[B] ): Id[B] = ma flatMap f
+  }
+
+  def stateMonad[S] = new Monad[( { type f[x] = State[S, x] } )#f] {
+    def unit[A]( a: => A ): State[S, A] = State( s => ( a, s ) )
+    def flatMap[A, B]( st: State[S, A] )( f: A => State[S, B] ): State[S, B] =
+      st flatMap f
+  }
 }
